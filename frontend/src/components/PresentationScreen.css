@@ -6,6 +6,20 @@
   overflow: hidden;
 }
 
+/* 下部5%のプレゼンテーション操作領域を示す */
+.presentation-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5%;
+  pointer-events: none;
+  border-top: 2px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 5;
+}
+
 .presentation-container.fullscreen {
   position: fixed;
   top: 0;
@@ -29,6 +43,19 @@
   cursor: crosshair;
   pointer-events: all;
   z-index: 10;
+}
+
+/* 下部5%の領域ではポインターイベントを無効化 */
+.drawing-canvas::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5%;
+  pointer-events: none;
+  border-top: 2px dashed rgba(255, 255, 255, 0.3);
+  box-sizing: border-box;
 }
 
 .control-panel {
