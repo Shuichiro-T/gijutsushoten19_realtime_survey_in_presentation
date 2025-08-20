@@ -104,6 +104,13 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
+    // 下部5%の領域では描画を開始しない
+    const canvasHeight = canvas.height;
+    const drawableHeight = canvasHeight * 0.95;
+    if (y > drawableHeight) {
+      return;
+    }
+
     setIsDrawing(true);
     setStartPosition({ x, y });
   };
@@ -116,7 +123,12 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
 
     const rect = canvas.getBoundingClientRect();
     const currentX = event.clientX - rect.left;
-    const currentY = event.clientY - rect.top;
+    let currentY = event.clientY - rect.top;
+
+    // 下部5%の領域に描画されないように制限
+    const canvasHeight = canvas.height;
+    const drawableHeight = canvasHeight * 0.95;
+    currentY = Math.min(currentY, drawableHeight);
 
     // 現在の四角を一時的に表示
     const ctx = canvas.getContext('2d');
@@ -151,7 +163,12 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
 
     const rect = canvas.getBoundingClientRect();
     const endX = event.clientX - rect.left;
-    const endY = event.clientY - rect.top;
+    let endY = event.clientY - rect.top;
+
+    // 下部5%の領域に描画されないように制限
+    const canvasHeight = canvas.height;
+    const drawableHeight = canvasHeight * 0.95;
+    endY = Math.min(endY, drawableHeight);
 
     const newRectangle: Rectangle = {
       x: Math.min(startPosition.x, endX),
@@ -159,6 +176,11 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
       width: Math.abs(endX - startPosition.x),
       height: Math.abs(endY - startPosition.y)
     };
+
+    // 下部5%領域に侵入しないよう最終調整
+    if (newRectangle.y + newRectangle.height > drawableHeight) {
+      newRectangle.height = drawableHeight - newRectangle.y;
+    }
 
     // 最小サイズの四角のみ追加
     if (newRectangle.width > 10 && newRectangle.height > 10) {
@@ -225,6 +247,11 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        style={{ 
+          pointerEvents: 'all',
+          // 下部5%領域でのクリックを無効化するためのclip-pathを使用
+          clipPath: 'polygon(0 0, 100% 0, 100% 95%, 0 95%)'
+        }}
       />
 
       {/* コントロールパネル */}
