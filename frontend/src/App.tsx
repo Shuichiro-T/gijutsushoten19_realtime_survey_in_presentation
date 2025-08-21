@@ -28,7 +28,7 @@ function App() {
   return (
     <div className="App">
       <div className="url-input-container">
-        <h1>プレゼンテーション画面技術検証</h1>
+        <h1>プレゼンテーション指定画面</h1>
         <div className="input-group">
           <label htmlFor="presentation-url">Google Slides 共有URL:</label>
           <input
