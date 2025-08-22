@@ -36,6 +36,7 @@ npm start
 - TypeScript
 - HTML5 Canvas
 - Fullscreen API
+- Node.js 24
 
 ## 注意事項
 - Google SlidesのCORS制限により、一部のURLでは埋め込みができない場合があります
