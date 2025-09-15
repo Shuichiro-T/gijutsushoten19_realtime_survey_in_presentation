@@ -1,0 +1,96 @@
+name: 機能要求 (Feature Request)
+description: 新機能やシステム改善の要求
+title: "[機能要求] "
+labels: ["enhancement", "claude-task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 機能要求テンプレート
+        
+        このテンプレートはClaudeによる実装を前提としています。
+        実装と同時にドキュメントの更新も行われます。
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 機能の概要
+      description: 実装したい機能について詳しく説明してください
+      placeholder: |
+        例：
+        - リアルタイムアンケートの結果をグラフ表示したい
+        - 投票者の匿名性を保ちつつ重複投票を防ぎたい
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: 影響を受けるコンポーネント
+      description: この機能が影響するシステムの部分を選択してください
+      options:
+        - フロントエンド (frontend/)
+        - バックエンド (backend/)
+        - インフラ (infra/)
+        - システム全体
+        - 不明
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: ユーザーストーリー
+      description: "〜として、〜したい、なぜなら〜だから"の形式で記述してください
+      placeholder: |
+        プレゼンターとして、リアルタイムでアンケート結果を確認したい、
+        なぜならプレゼンテーション中に観客の反応を把握して内容を調整したいから
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 受け入れ基準
+      description: この機能が完成したと判断する基準を列挙してください
+      placeholder: |
+        - [ ] アンケート結果がリアルタイムで更新される
+        - [ ] レスポンス時間が1秒以内
+        - [ ] モバイル端末でも正常に動作する
+        - [ ] ドキュメントが更新されている
+
+  - type: textarea
+    id: technical-considerations
+    attributes:
+      label: 技術的な考慮事項
+      description: パフォーマンス、セキュリティ、スケーラビリティなどの考慮すべき点
+      placeholder: |
+        - WebSocketを使用したリアルタイム通信
+        - 同時接続数の上限を考慮
+        - データベースの負荷分散
+
+  - type: textarea
+    id: documentation-updates
+    attributes:
+      label: 更新が必要なドキュメント
+      description: この機能実装に伴って更新すべきドキュメントを指定してください
+      placeholder: |
+        - doc/architecture.md - システムアーキテクチャの更新
+        - doc/screens.md - 新しい画面の追加
+        - README.md - 使用方法の更新
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 追加情報
+      description: その他の参考情報、関連issue、外部リンクなど
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Claude実装時の注意点
+        
+        - **日本語出力**: 全てのコメント、ドキュメント、出力は日本語で行ってください
+        - **リアルタイム性**: プレゼンテーション中の使用を想定し、レスポンシブな設計を心がけてください
+        - **ディレクトリ分離**: frontend/、backend/、infra/、doc/の責務を明確に分離してください
+        - **ドキュメント更新**: 実装と同時に関連ドキュメントも必ず更新してください
