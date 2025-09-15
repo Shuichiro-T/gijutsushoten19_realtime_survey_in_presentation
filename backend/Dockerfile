@@ -1,0 +1,27 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# package.jsonとpackage-lock.jsonをコピー
+COPY package*.json ./
+
+# 依存関係をインストール
+RUN npm ci --only=production && npm cache clean --force
+
+# アプリケーションファイルをコピー
+COPY . .
+
+# Prismaクライアントを生成
+RUN npx prisma generate
+
+# TypeScriptをビルド
+RUN npm run build
+
+# ポート3001を公開
+EXPOSE 3001
+
+# 非rootユーザーでアプリケーションを実行
+USER node
+
+# アプリケーションを起動
+CMD ["npm", "start"]

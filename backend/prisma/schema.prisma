@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  eventId   String   @unique @map("event_id")
+  title     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  surveys Survey[]
+  
+  @@map("events")
+}
+
+model Survey {
+  id        String   @id @default(cuid())
+  surveyId  String   @unique @map("survey_id")
+  eventId   String   @map("event_id")
+  title     String
+  question  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  event   Event            @relation(fields: [eventId], references: [eventId])
+  options SurveyOption[]
+  responses Response[]
+  
+  @@map("surveys")
+}
+
+model SurveyOption {
+  id       String @id @default(cuid())
+  surveyId String @map("survey_id")
+  text     String
+  order    Int
+  
+  survey    Survey     @relation(fields: [surveyId], references: [surveyId])
+  responses Response[]
+  
+  @@map("survey_options")
+}
+
+model Response {
+  id             String   @id @default(cuid())
+  surveyId       String   @map("survey_id")
+  surveyOptionId String   @map("survey_option_id")
+  userToken      String?  @map("user_token")
+  submittedAt    DateTime @default(now()) @map("submitted_at")
+  
+  survey       Survey       @relation(fields: [surveyId], references: [surveyId])
+  surveyOption SurveyOption @relation(fields: [surveyOptionId], references: [id])
+  
+  @@map("responses")
+}

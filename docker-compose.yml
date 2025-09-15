@@ -1,6 +1,41 @@
 version: '3.8'
 
 services:
+  # PostgreSQLデータベース
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: realtime_survey
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # バックエンドAPIサーバー
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/realtime_survey
+      - PORT=3001
+      - NODE_ENV=development
+      - FRONTEND_URL=http://localhost:3000
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  # フロントエンドアプリケーション
   frontend:
     build:
       context: ./frontend
@@ -13,10 +48,17 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - REACT_APP_ENV=development
+      - REACT_APP_API_URL=http://localhost:3001
+      - REACT_APP_SOCKET_URL=http://localhost:3001
+    depends_on:
+      - backend
     stdin_open: true
     tty: true
     networks:
       - app-network
+
+volumes:
+  postgres_data:
 
 networks:
   app-network:
