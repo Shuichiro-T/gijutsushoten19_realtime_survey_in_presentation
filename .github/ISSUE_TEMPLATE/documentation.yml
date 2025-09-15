@@ -1,0 +1,156 @@
+name: ドキュメント更新 (Documentation)
+description: ドキュメントの追加・更新・修正
+title: "[ドキュメント] "
+labels: ["documentation", "claude-task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ドキュメント更新テンプレート
+        
+        このテンプレートはClaudeによるドキュメント作成・更新を前提としています。
+        技術的精度と日本語での表現を重視します。
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: ドキュメントの種類
+      description: 更新するドキュメントの種類を選択してください
+      options:
+        - README.md - プロジェクト概要・使用方法
+        - doc/architecture.md - システムアーキテクチャ
+        - doc/screens.md - 画面設計・仕様
+        - doc/tables.md - データベース設計
+        - doc/users.md - ユーザー仕様
+        - doc/japanese_output_rules.md - 日本語出力ルール
+        - API仕様書
+        - セットアップガイド
+        - トラブルシューティング
+        - その他
+    validations:
+      required: true
+
+  - type: textarea
+    id: doc-purpose
+    attributes:
+      label: ドキュメント更新の目的
+      description: なぜこのドキュメントの更新が必要なのかを説明してください
+      placeholder: |
+        例：
+        - 新機能の追加に伴うAPI仕様の更新
+        - システムアーキテクチャの変更に伴う設計書の修正
+        - 初心者向けのセットアップ手順の詳細化
+        - 既存ドキュメントの情報が古くなっている
+    validations:
+      required: true
+
+  - type: textarea
+    id: target-audience
+    attributes:
+      label: 対象読者
+      description: このドキュメントを読む想定ユーザーを明確にしてください
+      placeholder: |
+        例：
+        - 新規開発者（初回セットアップ）
+        - 既存開発者（機能追加・修正）
+        - プレゼンター（システム利用者）
+        - システム管理者（運用・保守）
+    validations:
+      required: true
+
+  - type: textarea
+    id: content-outline
+    attributes:
+      label: 更新内容の概要
+      description: 追加・修正する内容のアウトラインを記述してください
+      placeholder: |
+        ## 追加予定セクション
+        1. リアルタイムアンケート機能の概要
+           - 基本的な仕組み
+           - WebSocket通信の詳細
+        
+        2. セットアップ手順
+           - 環境要件
+           - インストール手順
+           - 初回起動方法
+        
+        3. API仕様
+           - エンドポイント一覧
+           - リクエスト・レスポンス例
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-gaps
+    attributes:
+      label: 現在のドキュメントの不足点
+      description: 既存ドキュメントで不足している、または不正確な情報を特定してください
+      placeholder: |
+        - セットアップ手順で依存関係の記載が不足
+        - システム構成図が最新の実装と一致していない
+        - エラーハンドリングの説明が不十分
+        - 日本語の表現が統一されていない
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      description: このドキュメント更新の優先度を選択してください
+      options:
+        - 高 (緊急に必要)
+        - 中 (近いうちに必要)
+        - 低 (時間があるときに)
+    validations:
+      required: true
+
+  - type: textarea
+    id: related-components
+    attributes:
+      label: 関連するシステムコンポーネント
+      description: このドキュメントに関連するシステムの部分を列挙してください
+      placeholder: |
+        - frontend/src/components/PresentationScreen.tsx
+        - backend/src/socket/handlers.ts
+        - infra/docker-compose.yml
+        - .github/workflows/
+
+  - type: textarea
+    id: examples-needed
+    attributes:
+      label: 必要な例・サンプル
+      description: ドキュメントに含めるべき具体例やサンプルコードがあれば記述してください
+      placeholder: |
+        - WebSocketクライアントの接続例
+        - アンケート作成のAPIリクエスト例
+        - 環境変数設定のサンプル
+        - デプロイメント手順のコマンド例
+
+  - type: textarea
+    id: validation-criteria
+    attributes:
+      label: 完成判断基準
+      description: このドキュメントが完成したと判断する基準を列挙してください
+      placeholder: |
+        - [ ] 技術的な内容が正確である
+        - [ ] 手順通りに実行して正常に動作する
+        - [ ] 日本語表現が統一されている
+        - [ ] 対象読者が理解しやすい構成になっている
+        - [ ] 図表や例が適切に含まれている
+
+  - type: textarea
+    id: additional-notes
+    attributes:
+      label: 追加情報
+      description: その他の参考情報、制約事項、特記事項など
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Claude作成時の注意点
+        
+        - **日本語統一**: 全てのドキュメントは日本語で作成し、技術用語の使用を統一してください
+        - **実用性重視**: 理論だけでなく、実際に使える具体的な情報を含めてください
+        - **最新性保持**: 現在のコードベースと一致する正確な情報を記載してください
+        - **構造化**: 階層的な見出し構造と読みやすいフォーマットを使用してください
+        - **相互参照**: 関連するドキュメント間の適切なリンクを設置してください
+        - **メンテナンス性**: 将来の更新が容易になるような構成を考慮してください

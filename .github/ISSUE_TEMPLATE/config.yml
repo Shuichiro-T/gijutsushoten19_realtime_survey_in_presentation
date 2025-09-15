@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 質問・相談 (Question/Discussion)
+    url: https://github.com/Shuichiro-T/gijutsushoten19_realtime_survey_in_presentation/discussions
+    about: 技術的な質問や実装の相談はDiscussionsをご利用ください
+  - name: セキュリティ問題の報告
+    url: https://github.com/Shuichiro-T/gijutsushoten19_realtime_survey_in_presentation/security/advisories/new
+    about: セキュリティに関する問題は専用のSecurity Advisoriesで報告してください
