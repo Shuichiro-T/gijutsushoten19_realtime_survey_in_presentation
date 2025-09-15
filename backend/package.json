@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "MVP backend for real-time survey system",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
@@ -23,7 +26,7 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/cors": "^2.8.17",
-    "@types/node": "^20.10.5",
+    "@types/node": "^22.0.0",
     "typescript": "^5.3.3",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0"
