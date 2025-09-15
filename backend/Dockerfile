@@ -5,8 +5,8 @@ WORKDIR /app
 # package.jsonとpackage-lock.jsonをコピー
 COPY package*.json ./
 
-# 依存関係をインストール
-RUN npm install --only=production && npm cache clean --force
+# 依存関係をインストール（ビルドのためdevDependenciesも含める）
+RUN npm install && npm cache clean --force
 
 # アプリケーションファイルをコピー
 COPY . .
@@ -16,6 +16,9 @@ RUN npx prisma generate
 
 # TypeScriptをビルド
 RUN npm run build
+
+# プロダクション用の依存関係のみに削減
+RUN npm prune --production
 
 # ポート3001を公開
 EXPOSE 3001
