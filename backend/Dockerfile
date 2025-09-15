@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # 依存関係をインストール
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --only=production && npm cache clean --force
 
 # アプリケーションファイルをコピー
 COPY . .
