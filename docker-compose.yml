@@ -25,6 +25,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - /app/dist
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/realtime_survey
       - PORT=3001
