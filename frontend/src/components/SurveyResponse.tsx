@@ -39,70 +39,64 @@ const SurveyResponse: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    // TODO: 実際のAPIからアンケートデータを取得
-    // 現在はモックデータで動作確認
     const fetchSurvey = async () => {
       try {
         setLoading(true);
         
-        // モックデータ
-        const mockSurvey: Survey = {
-          id: surveyId || '',
-          title: 'プレゼンテーションに関するアンケート',
-          description: 'プレゼンテーションの内容について教えてください',
-          status: 'active',
-          questions: [
-            {
-              id: '1',
-              type: 'multiple_choice',
-              title: 'プレゼンテーションの理解度はいかがでしたか？',
-              required: true,
-              options: ['とてもよく理解できた', 'まあまあ理解できた', 'あまり理解できなかった', '全く理解できなかった']
-            },
-            {
-              id: '2',
-              type: 'rating',
-              title: 'プレゼンテーションの満足度を5段階で評価してください',
-              required: true,
-              minRating: 1,
-              maxRating: 5
-            },
-            {
-              id: '3',
-              type: 'text',
-              title: 'ご意見・ご感想をお聞かせください',
-              description: '改善点や気になった点があれば自由にお書きください',
-              required: false
-            }
-          ]
-        };
-
         // アンケートが存在しない、または終了している場合のエラーハンドリング
         if (!surveyId || !eventId) {
           setError('アンケートIDまたはイベントIDが無効です');
           return;
         }
 
-        if (mockSurvey.status === 'ended') {
-          setError('このアンケートは既に終了しています');
+        // APIからアンケートデータを取得
+        const response = await fetch(`/api/surveys/events/${eventId}/surveys/${surveyId}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            setError('指定されたアンケートが見つかりません');
+          } else {
+            setError('アンケートの取得に失敗しました');
+          }
           return;
         }
 
-        if (mockSurvey.status === 'inactive') {
-          setError('このアンケートはまだ開始されていません');
+        const data = await response.json();
+        
+        if (!data.success) {
+          setError(data.error || 'アンケートの取得に失敗しました');
           return;
         }
 
-        setSurvey(mockSurvey);
+        // APIレスポンスを内部のSurvey型に変換
+        const apiSurvey = data.data;
+        const convertedSurvey: Survey = {
+          id: apiSurvey.surveyId,
+          title: apiSurvey.title,
+          description: apiSurvey.event?.title,
+          status: 'active', // 現在は選択肢アンケートのみ対応のため、固定でactive
+          questions: [
+            {
+              id: 'main',
+              type: 'multiple_choice',
+              title: apiSurvey.question,
+              required: true,
+              options: apiSurvey.options.map((option: any) => option.text)
+            }
+          ]
+        };
+
+        setSurvey(convertedSurvey);
         
         // 回答を初期化
-        const initialAnswers: SurveyAnswer[] = mockSurvey.questions.map(q => ({
+        const initialAnswers: SurveyAnswer[] = convertedSurvey.questions.map(q => ({
           questionId: q.id,
           answer: q.type === 'multiple_choice' ? '' : q.type === 'rating' ? 0 : ''
         }));
         setAnswers(initialAnswers);
         
       } catch (err) {
+        console.error('Survey fetch error:', err);
         setError('アンケートの読み込み中にエラーが発生しました');
       } finally {
         setLoading(false);
@@ -152,26 +146,66 @@ const SurveyResponse: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateAnswers()) {
+    if (!validateAnswers() || !survey) {
       return;
     }
     
     try {
       setSubmitting(true);
       
-      // TODO: 実際のAPIに回答を送信
-      // 現在はモック送信
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // アンケート回答の送信
+      const mainAnswer = answers.find(a => a.questionId === 'main');
+      if (!mainAnswer || !mainAnswer.answer) {
+        setError('回答が選択されていません');
+        return;
+      }
+
+      // 選択された回答に対応する選択肢IDを取得
+      // APIレスポンスから選択肢情報を取得するため、再度APIを呼び出す
+      const surveyResponse = await fetch(`/api/surveys/events/${eventId}/surveys/${surveyId}`);
+      if (!surveyResponse.ok) {
+        setError('アンケート情報の取得に失敗しました');
+        return;
+      }
       
-      console.log('アンケート回答:', {
-        eventId,
-        surveyId,
-        answers
+      const surveyData = await surveyResponse.json();
+      const selectedOption = surveyData.data.options.find((option: any) => option.text === mainAnswer.answer);
+      
+      if (!selectedOption) {
+        setError('選択された回答が無効です');
+        return;
+      }
+
+      // 回答を送信
+      const response = await fetch('/api/surveys/responses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId,
+          surveyId,
+          optionId: selectedOption.id,
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error || '回答の送信に失敗しました');
+        return;
+      }
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        setError(data.error || '回答の送信に失敗しました');
+        return;
+      }
       
       setSubmitted(true);
       
     } catch (err) {
+      console.error('Submit error:', err);
       setError('回答の送信中にエラーが発生しました。もう一度お試しください。');
     } finally {
       setSubmitting(false);
