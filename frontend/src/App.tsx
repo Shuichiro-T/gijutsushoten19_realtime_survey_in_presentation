@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { 
+  BrowserRouter as Router, 
+  Routes, 
+  Route,
+  createBrowserRouter,
+  RouterProvider 
+} from 'react-router-dom';
 import './App.css';
 import PresentationScreen from './components/PresentationScreen';
 import EventRegistration from './components/EventRegistration';
@@ -182,19 +188,26 @@ const PresenterApp: React.FC = () => {
   }
 };
 
+// React Router v7対応のルーター設定
+const router = createBrowserRouter([
+  {
+    path: "/events/:eventId/surveys/:surveyId",
+    element: <SurveyResponse />,
+  },
+  {
+    path: "/*",
+    element: <PresenterApp />,
+  },
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true,
+  },
+});
+
 // メインのApp コンポーネント
 function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* アンケート回答画面 - 観客用 */}
-        <Route path="/events/:eventId/surveys/:surveyId" element={<SurveyResponse />} />
-        
-        {/* プレゼンター用画面（既存機能） */}
-        <Route path="/*" element={<PresenterApp />} />
-      </Routes>
-    </Router>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
