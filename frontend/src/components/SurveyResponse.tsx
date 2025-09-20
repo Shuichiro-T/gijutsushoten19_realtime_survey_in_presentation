@@ -50,6 +50,7 @@ const SurveyResponse: React.FC = () => {
         }
 
         // APIからアンケートデータを取得
+        // 開発環境ではプロキシ設定により /api が自動的にバックエンドに転送される
         const response = await fetch(`/api/surveys/events/${eventId}/surveys/${surveyId}`);
         
         if (!response.ok) {
