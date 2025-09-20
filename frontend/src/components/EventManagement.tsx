@@ -6,13 +6,15 @@ interface EventManagementProps {
   eventTitle: string;
   onBack: () => void;
   onStartPresentation: () => void;
+  onCreateSurvey: () => void;
 }
 
 const EventManagement: React.FC<EventManagementProps> = ({
   eventId,
   eventTitle,
   onBack,
-  onStartPresentation
+  onStartPresentation,
+  onCreateSurvey
 }) => {
   const [copiedEventId, setCopiedEventId] = useState<boolean>(false);
 
@@ -69,6 +71,12 @@ const EventManagement: React.FC<EventManagementProps> = ({
             className="secondary-button"
           >
             新しいイベントを作成
+          </button>
+          <button 
+            onClick={onCreateSurvey}
+            className="secondary-button"
+          >
+            アンケートを作成
           </button>
           <button 
             onClick={onStartPresentation}

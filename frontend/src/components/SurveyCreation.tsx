@@ -1,0 +1,226 @@
+import React, { useState } from 'react';
+import './SurveyCreation.css';
+
+interface SurveyCreationProps {
+  eventId: string;
+  eventTitle: string;
+  onBack: () => void;
+  onSurveyCreated: (surveyId: string, surveyTitle: string) => void;
+}
+
+interface SurveyOption {
+  id: string;
+  text: string;
+}
+
+const SurveyCreation: React.FC<SurveyCreationProps> = ({
+  eventId,
+  eventTitle,
+  onBack,
+  onSurveyCreated
+}) => {
+  const [title, setTitle] = useState<string>('');
+  const [question, setQuestion] = useState<string>('');
+  const [options, setOptions] = useState<SurveyOption[]>([
+    { id: '1', text: '' },
+    { id: '2', text: '' }
+  ]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+
+  const addOption = () => {
+    const newId = (Math.max(...options.map(opt => parseInt(opt.id))) + 1).toString();
+    setOptions([...options, { id: newId, text: '' }]);
+  };
+
+  const removeOption = (id: string) => {
+    if (options.length > 2) {
+      setOptions(options.filter(option => option.id !== id));
+    }
+  };
+
+  const updateOption = (id: string, text: string) => {
+    setOptions(options.map(option => 
+      option.id === id ? { ...option, text } : option
+    ));
+  };
+
+  const validateForm = (): boolean => {
+    if (!title.trim()) {
+      setError('アンケートタイトルを入力してください');
+      return false;
+    }
+    if (!question.trim()) {
+      setError('質問を入力してください');
+      return false;
+    }
+    const validOptions = options.filter(option => option.text.trim());
+    if (validOptions.length < 2) {
+      setError('選択肢を2つ以上入力してください');
+      return false;
+    }
+    setError('');
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const validOptions = options
+        .filter(option => option.text.trim())
+        .map(option => option.text.trim());
+
+      const response = await fetch('http://localhost:3001/api/surveys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId,
+          title: title.trim(),
+          question: question.trim(),
+          options: validOptions,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        onSurveyCreated(data.data.surveyId, data.data.title);
+      } else {
+        setError(data.error || 'アンケートの作成に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error creating survey:', error);
+      setError('サーバーとの通信に失敗しました');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="survey-creation">
+      <div className="survey-creation-container">
+        <h1>アンケート作成</h1>
+        
+        <div className="event-info">
+          <p><strong>イベント:</strong> {eventTitle}</p>
+          <p><strong>イベントID:</strong> {eventId}</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="survey-form">
+          <div className="form-group">
+            <label htmlFor="survey-title">アンケートタイトル <span className="required">*</span></label>
+            <input
+              id="survey-title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="例: 今日のプレゼンテーションについて"
+              maxLength={100}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="survey-question">質問 <span className="required">*</span></label>
+            <textarea
+              id="survey-question"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="例: 今日のプレゼンテーションの内容はいかがでしたか？"
+              rows={3}
+              maxLength={500}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>選択肢 <span className="required">*</span></label>
+            <div className="options-container">
+              {options.map((option, index) => (
+                <div key={option.id} className="option-input-group">
+                  <span className="option-number">{index + 1}.</span>
+                  <input
+                    type="text"
+                    value={option.text}
+                    onChange={(e) => updateOption(option.id, e.target.value)}
+                    placeholder={`選択肢 ${index + 1}`}
+                    maxLength={100}
+                    disabled={isSubmitting}
+                  />
+                  {options.length > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => removeOption(option.id)}
+                      className="remove-option-button"
+                      disabled={isSubmitting}
+                      title="この選択肢を削除"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {options.length < 10 && (
+              <button
+                type="button"
+                onClick={addOption}
+                className="add-option-button"
+                disabled={isSubmitting}
+              >
+                + 選択肢を追加
+              </button>
+            )}
+          </div>
+
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+
+          <div className="form-actions">
+            <button
+              type="button"
+              onClick={onBack}
+              className="back-button"
+              disabled={isSubmitting}
+            >
+              戻る
+            </button>
+            <button
+              type="submit"
+              className="create-button"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'アンケートを作成中...' : 'アンケートを作成'}
+            </button>
+          </div>
+        </form>
+
+        <div className="tips">
+          <h3>アンケート作成のコツ:</h3>
+          <ul>
+            <li>質問は明確で理解しやすい表現にしましょう</li>
+            <li>選択肢は重複しないよう注意してください</li>
+            <li>回答者が選びやすい適切な数の選択肢を用意しましょう</li>
+            <li>プレゼンテーションの内容に関連した質問にしましょう</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SurveyCreation;
