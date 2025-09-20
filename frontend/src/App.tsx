@@ -3,8 +3,9 @@ import './App.css';
 import PresentationScreen from './components/PresentationScreen';
 import EventRegistration from './components/EventRegistration';
 import EventManagement from './components/EventManagement';
+import SurveyCreation from './components/SurveyCreation';
 
-type AppState = 'menu' | 'event-registration' | 'event-management' | 'presentation-setup' | 'presenting';
+type AppState = 'menu' | 'event-registration' | 'event-management' | 'survey-creation' | 'presentation-setup' | 'presenting';
 
 function App() {
   const [currentState, setCurrentState] = useState<AppState>('menu');
@@ -41,6 +42,19 @@ function App() {
     setEventTitle('');
   };
 
+  const handleCreateSurvey = () => {
+    setCurrentState('survey-creation');
+  };
+
+  const handleSurveyCreated = (surveyId: string, surveyTitle: string) => {
+    // アンケート作成後はイベント管理画面に戻る
+    setCurrentState('event-management');
+  };
+
+  const handleBackToEventManagement = () => {
+    setCurrentState('event-management');
+  };
+
   // 画面の状態管理
   switch (currentState) {
     case 'event-registration':
@@ -58,6 +72,17 @@ function App() {
           eventTitle={eventTitle}
           onBack={handleBackToEventRegistration}
           onStartPresentation={() => setCurrentState('presentation-setup')}
+          onCreateSurvey={handleCreateSurvey}
+        />
+      );
+
+    case 'survey-creation':
+      return (
+        <SurveyCreation
+          eventId={eventId}
+          eventTitle={eventTitle}
+          onBack={handleBackToEventManagement}
+          onSurveyCreated={handleSurveyCreated}
         />
       );
 
