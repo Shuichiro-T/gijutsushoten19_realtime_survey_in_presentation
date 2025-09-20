@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import PresentationScreen from './components/PresentationScreen';
 import EventRegistration from './components/EventRegistration';
 import EventManagement from './components/EventManagement';
 import SurveyCreation from './components/SurveyCreation';
+import SurveyResponse from './components/SurveyResponse';
 
 type AppState = 'menu' | 'event-registration' | 'event-management' | 'survey-creation' | 'presentation-setup' | 'presenting';
 
-function App() {
+// メインアプリケーションコンポーネント（プレゼンター用）
+const PresenterApp: React.FC = () => {
   const [currentState, setCurrentState] = useState<AppState>('menu');
   const [presentationUrl, setPresentationUrl] = useState<string>('');
   const [eventId, setEventId] = useState<string>('');
@@ -47,7 +50,6 @@ function App() {
   };
 
   const handleSurveyCreated = (surveyId: string, surveyTitle: string) => {
-    // アンケート作成後はイベント管理画面に戻る
     setCurrentState('event-management');
   };
 
@@ -55,7 +57,6 @@ function App() {
     setCurrentState('event-management');
   };
 
-  // 画面の状態管理
   switch (currentState) {
     case 'event-registration':
       return (
@@ -142,7 +143,7 @@ function App() {
         />
       );
 
-    default: // 'menu'
+    default:
       return (
         <div className="App">
           <div className="main-menu">
@@ -177,6 +178,25 @@ function App() {
         </div>
       );
   }
+};
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* 観客用アンケート回答ページ */}
+        <Route 
+          path="/events/:eventId/surveys/:surveyId" 
+          element={<SurveyResponse />} 
+        />
+        {/* プレゼンター用メイン画面 */}
+        <Route 
+          path="/*" 
+          element={<PresenterApp />} 
+        />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;
