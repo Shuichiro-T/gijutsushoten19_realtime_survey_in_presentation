@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import PresentationScreen from './components/PresentationScreen';
 import EventRegistration from './components/EventRegistration';
 import EventManagement from './components/EventManagement';
 import SurveyCreation from './components/SurveyCreation';
+import SurveyResponse from './components/SurveyResponse';
 
 type AppState = 'menu' | 'event-registration' | 'event-management' | 'survey-creation' | 'presentation-setup' | 'presenting';
 
-function App() {
+// プレゼンター用アプリのコンポーネント
+const PresenterApp: React.FC = () => {
   const [currentState, setCurrentState] = useState<AppState>('menu');
   const [presentationUrl, setPresentationUrl] = useState<string>('');
   const [eventId, setEventId] = useState<string>('');
@@ -177,6 +180,21 @@ function App() {
         </div>
       );
   }
+};
+
+// メインのApp コンポーネント
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* アンケート回答画面 - 観客用 */}
+        <Route path="/events/:eventId/surveys/:surveyId" element={<SurveyResponse />} />
+        
+        {/* プレゼンター用画面（既存機能） */}
+        <Route path="/*" element={<PresenterApp />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;
