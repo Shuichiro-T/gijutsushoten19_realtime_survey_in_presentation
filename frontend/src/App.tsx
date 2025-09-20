@@ -188,7 +188,7 @@ const PresenterApp: React.FC = () => {
   }
 };
 
-// React Router v7対応のルーター設定
+// React Router設定
 const router = createBrowserRouter([
   {
     path: "/events/:eventId/surveys/:surveyId",
@@ -198,12 +198,7 @@ const router = createBrowserRouter([
     path: "/*",
     element: <PresenterApp />,
   },
-], {
-  future: {
-    v7_startTransition: true,
-    v7_relativeSplatPath: true,
-  },
-});
+]);
 
 // メインのApp コンポーネント
 function App() {
