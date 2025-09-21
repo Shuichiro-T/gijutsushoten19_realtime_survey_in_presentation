@@ -149,11 +149,26 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
     const fetchSurveys = async () => {
       setIsLoadingSurveys(true);
       try {
-        // アンケート一覧を取得するためのAPIエンドポイントを実装する必要があります
-        // 現在は手動で既知のアンケートIDを使用
-        console.log('イベントID取得:', eventId);
+        const response = await fetch(`/api/surveys/events/${eventId}/surveys`);
+        const data = await response.json();
+        
+        if (data.success && data.data.surveys) {
+          const fetchedSurveys: Survey[] = data.data.surveys.map((survey: any) => ({
+            surveyId: survey.surveyId,
+            eventId: eventId,
+            title: survey.title,
+            question: survey.question,
+            options: survey.options
+          }));
+          setSurveys(fetchedSurveys);
+          console.log(`イベントID ${eventId} から ${fetchedSurveys.length} 件のアンケートを取得しました`);
+        } else {
+          console.log('アンケートが見つかりませんでした');
+          setSurveys([]);
+        }
       } catch (error) {
         console.error('アンケート一覧の取得に失敗:', error);
+        setSurveys([]);
       } finally {
         setIsLoadingSurveys(false);
       }
@@ -192,29 +207,6 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
     return () => clearInterval(interval);
   }, [showResults, surveys]);
 
-  // アンケート結果を手動で追加する関数（テスト用）
-  const addTestSurvey = (surveyId: string) => {
-    if (!eventId) return;
-    
-    const testSurvey: Survey = {
-      surveyId,
-      eventId,
-      title: `テストアンケート ${surveyId}`,
-      question: `アンケート ${surveyId} の質問`,
-      options: [
-        { id: 1, text: 'オプション1', order: 1 },
-        { id: 2, text: 'オプション2', order: 2 }
-      ]
-    };
-    
-    setSurveys(prev => {
-      const exists = prev.some(s => s.surveyId === surveyId);
-      if (!exists) {
-        return [...prev, testSurvey];
-      }
-      return prev;
-    });
-  };
 
   // 現在表示中のアンケート結果を取得
   const getCurrentSurveyResult = (): SurveyResult | null => {
@@ -257,22 +249,6 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
           >
             アンケート結果 (S)
           </button>
-          {eventId && (
-            <div className="survey-controls">
-              <button 
-                onClick={() => addTestSurvey('test1')} 
-                className="control-button test-button"
-              >
-                テスト1追加
-              </button>
-              <button 
-                onClick={() => addTestSurvey('test2')} 
-                className="control-button test-button"
-              >
-                テスト2追加
-              </button>
-            </div>
-          )}
           <button onClick={onExit} className="control-button exit-button">
             終了 (Esc)
           </button>
