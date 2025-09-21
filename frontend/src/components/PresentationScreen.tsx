@@ -7,12 +7,6 @@ interface PresentationScreenProps {
   onExit: () => void;
 }
 
-interface Rectangle {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 interface SurveyResult {
   surveyId: string;
@@ -46,11 +40,7 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
   onExit
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [rectangles, setRectangles] = useState<Rectangle[]>([]);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [startPosition, setStartPosition] = useState<{ x: number; y: number } | null>(null);
   
   // アンケート結果表示用の状態
   const [surveys, setSurveys] = useState<Survey[]>([]);
@@ -108,11 +98,6 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
           event.preventDefault();
           toggleFullscreen();
           break;
-        case 'c':
-        case 'C':
-          // Cキーで四角をクリア
-          setRectangles([]);
-          break;
         case 's':
         case 'S':
           // Sキーでアンケート結果の表示・非表示を切り替え
@@ -154,136 +139,8 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  // キャンバス上での描画処理
-  const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
 
-    // 下部5%の領域では描画を開始しない
-    const canvasHeight = canvas.height;
-    const drawableHeight = canvasHeight * 0.95;
-    if (y > drawableHeight) {
-      return;
-    }
-
-    setIsDrawing(true);
-    setStartPosition({ x, y });
-  };
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !startPosition) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const currentX = event.clientX - rect.left;
-    let currentY = event.clientY - rect.top;
-
-    // 下部5%の領域に描画されないように制限
-    const canvasHeight = canvas.height;
-    const drawableHeight = canvasHeight * 0.95;
-    currentY = Math.min(currentY, drawableHeight);
-
-    // 現在の四角を一時的に表示
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // 既存の四角を描画
-      rectangles.forEach(rectangle => {
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-        ctx.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-        ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-      });
-
-      // 現在描画中の四角
-      const width = currentX - startPosition.x;
-      const height = currentY - startPosition.y;
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-      ctx.fillRect(startPosition.x, startPosition.y, width, height);
-      ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(startPosition.x, startPosition.y, width, height);
-    }
-  };
-
-  const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !startPosition) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const endX = event.clientX - rect.left;
-    let endY = event.clientY - rect.top;
-
-    // 下部5%の領域に描画されないように制限
-    const canvasHeight = canvas.height;
-    const drawableHeight = canvasHeight * 0.95;
-    endY = Math.min(endY, drawableHeight);
-
-    const newRectangle: Rectangle = {
-      x: Math.min(startPosition.x, endX),
-      y: Math.min(startPosition.y, endY),
-      width: Math.abs(endX - startPosition.x),
-      height: Math.abs(endY - startPosition.y)
-    };
-
-    // 下部5%領域に侵入しないよう最終調整
-    if (newRectangle.y + newRectangle.height > drawableHeight) {
-      newRectangle.height = drawableHeight - newRectangle.y;
-    }
-
-    // 最小サイズの四角のみ追加
-    if (newRectangle.width > 10 && newRectangle.height > 10) {
-      setRectangles(prev => [...prev, newRectangle]);
-    }
-
-    setIsDrawing(false);
-    setStartPosition(null);
-  };
-
-  // キャンバスの再描画
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    rectangles.forEach(rectangle => {
-      ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-      ctx.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-      ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-    });
-  }, [rectangles]);
-
-  // ウィンドウリサイズ時のキャンバスサイズ調整
-  useEffect(() => {
-    const resizeCanvas = () => {
-      const canvas = canvasRef.current;
-      const container = containerRef.current;
-      if (canvas && container) {
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-      }
-    };
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    return () => window.removeEventListener('resize', resizeCanvas);
-  }, [isFullscreen]);
 
   // イベントIDが提供されている場合、アンケート一覧を取得
   useEffect(() => {
@@ -387,28 +244,12 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
         title="Google Slides Presentation"
       />
       
-      {/* 描画用キャンバス */}
-      <canvas
-        ref={canvasRef}
-        className="drawing-canvas"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        style={{ 
-          pointerEvents: 'all',
-          // 下部5%領域でのクリックを無効化するためのclip-pathを使用
-          clipPath: 'polygon(0 0, 100% 0, 100% 95%, 0 95%)'
-        }}
-      />
 
       {/* コントロールパネル */}
       {!isFullscreen && (
         <div className="control-panel">
           <button onClick={toggleFullscreen} className="control-button">
             全画面表示 (F11)
-          </button>
-          <button onClick={() => setRectangles([])} className="control-button">
-            四角をクリア (C)
           </button>
           <button 
             onClick={() => setShowResults(!showResults)} 
@@ -441,8 +282,7 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
       {/* 全画面時の簡易ヘルプ */}
       {isFullscreen && (
         <div className="fullscreen-help">
-          <div className="help-item">マウスドラッグで四角を描画</div>
-          <div className="help-item">C: クリア | S: アンケート結果 | Esc: 終了</div>
+          <div className="help-item">S: アンケート結果 | Esc: 終了</div>
           {showResults && surveyResults.length > 1 && (
             <div className="help-item">← → : アンケート切り替え</div>
           )}
