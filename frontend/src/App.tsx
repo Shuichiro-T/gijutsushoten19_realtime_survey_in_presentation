@@ -147,6 +147,7 @@ const PresenterApp: React.FC = () => {
       return (
         <PresentationScreen 
           presentationUrl={presentationUrl}
+          eventId={eventId}
           onExit={handleStopPresentation}
         />
       );

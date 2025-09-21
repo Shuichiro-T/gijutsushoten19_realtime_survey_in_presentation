@@ -3,6 +3,7 @@ import './PresentationScreen.css';
 
 interface PresentationScreenProps {
   presentationUrl: string;
+  eventId?: string;
   onExit: () => void;
 }
 
@@ -13,8 +14,35 @@ interface Rectangle {
   height: number;
 }
 
+interface SurveyResult {
+  surveyId: string;
+  eventId: string;
+  title: string;
+  question: string;
+  totalResponses: number;
+  results: {
+    optionId: number;
+    text: string;
+    order: number;
+    count: number;
+  }[];
+}
+
+interface Survey {
+  surveyId: string;
+  eventId: string;
+  title: string;
+  question: string;
+  options: {
+    id: number;
+    text: string;
+    order: number;
+  }[];
+}
+
 const PresentationScreen: React.FC<PresentationScreenProps> = ({
   presentationUrl,
+  eventId,
   onExit
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -23,6 +51,13 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
   const [rectangles, setRectangles] = useState<Rectangle[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPosition, setStartPosition] = useState<{ x: number; y: number } | null>(null);
+  
+  // アンケート結果表示用の状態
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [surveyResults, setSurveyResults] = useState<SurveyResult[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [currentSurveyIndex, setCurrentSurveyIndex] = useState(0);
+  const [isLoadingSurveys, setIsLoadingSurveys] = useState(false);
 
   // Google SlidesのURLを埋め込み用URLに変換
   const getEmbedUrl = (url: string): string => {
@@ -78,12 +113,36 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
           // Cキーで四角をクリア
           setRectangles([]);
           break;
+        case 's':
+        case 'S':
+          // Sキーでアンケート結果の表示・非表示を切り替え
+          event.preventDefault();
+          setShowResults(prev => !prev);
+          break;
+        case 'ArrowLeft':
+          // 左矢印キーで前のアンケート結果
+          if (showResults && surveyResults.length > 1) {
+            event.preventDefault();
+            setCurrentSurveyIndex(prev => 
+              prev > 0 ? prev - 1 : surveyResults.length - 1
+            );
+          }
+          break;
+        case 'ArrowRight':
+          // 右矢印キーで次のアンケート結果
+          if (showResults && surveyResults.length > 1) {
+            event.preventDefault();
+            setCurrentSurveyIndex(prev => 
+              prev < surveyResults.length - 1 ? prev + 1 : 0
+            );
+          }
+          break;
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, onExit]);
+  }, [isFullscreen, onExit, showResults, surveyResults.length]);
 
   // 全画面状態の監視
   useEffect(() => {
@@ -226,6 +285,94 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
     return () => window.removeEventListener('resize', resizeCanvas);
   }, [isFullscreen]);
 
+  // イベントIDが提供されている場合、アンケート一覧を取得
+  useEffect(() => {
+    if (!eventId) return;
+
+    const fetchSurveys = async () => {
+      setIsLoadingSurveys(true);
+      try {
+        // アンケート一覧を取得するためのAPIエンドポイントを実装する必要があります
+        // 現在は手動で既知のアンケートIDを使用
+        console.log('イベントID取得:', eventId);
+      } catch (error) {
+        console.error('アンケート一覧の取得に失敗:', error);
+      } finally {
+        setIsLoadingSurveys(false);
+      }
+    };
+
+    fetchSurveys();
+  }, [eventId]);
+
+  // アンケート結果のリアルタイム更新
+  useEffect(() => {
+    if (!showResults || surveys.length === 0) return;
+
+    const fetchSurveyResults = async () => {
+      try {
+        const resultsPromises = surveys.map(async (survey) => {
+          const response = await fetch(`/api/surveys/events/${survey.eventId}/surveys/${survey.surveyId}/results`);
+          const data = await response.json();
+          if (data.success) {
+            return data.data;
+          }
+          return null;
+        });
+
+        const results = await Promise.all(resultsPromises);
+        const validResults = results.filter(result => result !== null);
+        setSurveyResults(validResults);
+      } catch (error) {
+        console.error('アンケート結果の取得に失敗:', error);
+      }
+    };
+
+    fetchSurveyResults();
+
+    // 5秒ごとにリアルタイム更新
+    const interval = setInterval(fetchSurveyResults, 5000);
+    return () => clearInterval(interval);
+  }, [showResults, surveys]);
+
+  // アンケート結果を手動で追加する関数（テスト用）
+  const addTestSurvey = (surveyId: string) => {
+    if (!eventId) return;
+    
+    const testSurvey: Survey = {
+      surveyId,
+      eventId,
+      title: `テストアンケート ${surveyId}`,
+      question: `アンケート ${surveyId} の質問`,
+      options: [
+        { id: 1, text: 'オプション1', order: 1 },
+        { id: 2, text: 'オプション2', order: 2 }
+      ]
+    };
+    
+    setSurveys(prev => {
+      const exists = prev.some(s => s.surveyId === surveyId);
+      if (!exists) {
+        return [...prev, testSurvey];
+      }
+      return prev;
+    });
+  };
+
+  // 現在表示中のアンケート結果を取得
+  const getCurrentSurveyResult = (): SurveyResult | null => {
+    if (surveyResults.length === 0 || currentSurveyIndex >= surveyResults.length) {
+      return null;
+    }
+    return surveyResults[currentSurveyIndex];
+  };
+
+  // パーセンテージ計算
+  const calculatePercentage = (count: number, total: number): number => {
+    if (total === 0) return 0;
+    return Math.round((count / total) * 100);
+  };
+
   return (
     <div 
       ref={containerRef}
@@ -263,6 +410,28 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
           <button onClick={() => setRectangles([])} className="control-button">
             四角をクリア (C)
           </button>
+          <button 
+            onClick={() => setShowResults(!showResults)} 
+            className={`control-button ${showResults ? 'active' : ''}`}
+          >
+            アンケート結果 (S)
+          </button>
+          {eventId && (
+            <div className="survey-controls">
+              <button 
+                onClick={() => addTestSurvey('test1')} 
+                className="control-button test-button"
+              >
+                テスト1追加
+              </button>
+              <button 
+                onClick={() => addTestSurvey('test2')} 
+                className="control-button test-button"
+              >
+                テスト2追加
+              </button>
+            </div>
+          )}
           <button onClick={onExit} className="control-button exit-button">
             終了 (Esc)
           </button>
@@ -273,7 +442,68 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
       {isFullscreen && (
         <div className="fullscreen-help">
           <div className="help-item">マウスドラッグで四角を描画</div>
-          <div className="help-item">C: クリア | Esc: 終了</div>
+          <div className="help-item">C: クリア | S: アンケート結果 | Esc: 終了</div>
+          {showResults && surveyResults.length > 1 && (
+            <div className="help-item">← → : アンケート切り替え</div>
+          )}
+        </div>
+      )}
+
+      {/* アンケート結果オーバーレイ */}
+      {showResults && (
+        <div className="survey-results-overlay">
+          {getCurrentSurveyResult() ? (
+            <div className="survey-results-content">
+              <div className="survey-results-header">
+                <h2>{getCurrentSurveyResult()!.title}</h2>
+                <p className="survey-question">{getCurrentSurveyResult()!.question}</p>
+                <p className="total-responses">
+                  総回答数: {getCurrentSurveyResult()!.totalResponses}件
+                </p>
+                {surveyResults.length > 1 && (
+                  <p className="survey-navigation">
+                    {currentSurveyIndex + 1} / {surveyResults.length}
+                  </p>
+                )}
+              </div>
+              <div className="survey-results-list">
+                {getCurrentSurveyResult()!.results.map((result) => {
+                  const percentage = calculatePercentage(
+                    result.count, 
+                    getCurrentSurveyResult()!.totalResponses
+                  );
+                  return (
+                    <div key={result.optionId} className="survey-result-item">
+                      <div className="result-header">
+                        <span className="option-text">{result.text}</span>
+                        <span className="result-stats">
+                          {result.count}件 ({percentage}%)
+                        </span>
+                      </div>
+                      <div className="result-bar">
+                        <div 
+                          className="result-bar-fill" 
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="survey-results-content">
+              <div className="survey-results-header">
+                <h2>アンケート結果</h2>
+                <p className="no-surveys">
+                  {isLoadingSurveys ? 'アンケートを読み込み中...' : 'アンケートがありません'}
+                </p>
+                {eventId && (
+                  <p className="event-info">イベントID: {eventId}</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
