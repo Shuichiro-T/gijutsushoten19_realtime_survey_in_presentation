@@ -101,6 +101,60 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+// イベントのアンケート一覧取得
+router.get('/events/:eventId/surveys', async (req: Request, res: Response) => {
+  try {
+    const { eventId } = req.params;
+    
+    // イベントの存在確認
+    const event = await prisma.event.findUnique({
+      where: { eventId },
+    });
+    
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        error: 'イベントが見つかりません',
+      });
+    }
+    
+    // イベントに紐づく全アンケートを取得
+    const surveys = await prisma.survey.findMany({
+      where: {
+        eventId,
+      },
+      include: {
+        options: {
+          orderBy: { order: 'asc' },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        eventId,
+        surveys: surveys.map(survey => ({
+          surveyId: survey.surveyId,
+          title: survey.title,
+          question: survey.question,
+          options: survey.options,
+          createdAt: survey.createdAt,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching surveys for event:', error);
+    res.status(500).json({
+      success: false,
+      error: 'アンケート一覧の取得に失敗しました',
+    });
+  }
+});
+
 // アンケート取得
 router.get('/events/:eventId/surveys/:surveyId', async (req: Request, res: Response) => {
   try {
