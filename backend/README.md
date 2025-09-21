@@ -88,6 +88,11 @@ Content-Type: application/json
 }
 ```
 
+#### イベントのアンケート一覧取得
+```
+GET /api/surveys/events/:eventId/surveys
+```
+
 #### アンケート取得
 ```
 GET /api/surveys/events/:eventId/surveys/:surveyId
