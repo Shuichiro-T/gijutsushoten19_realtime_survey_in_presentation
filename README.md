@@ -27,14 +27,14 @@ git clone <repository-url>
 cd gijutsushoten19_realtime_survey_in_presentation
 
 # Docker環境で全サービス起動
-docker-compose up --build
+docker compose up --build
 ```
 
 ### 2. 初期設定
 
 ```bash
 # バックエンドコンテナに入る
-docker-compose exec backend sh
+docker compose exec backend sh
 
 # データベースマイグレーション
 npm run migrate
