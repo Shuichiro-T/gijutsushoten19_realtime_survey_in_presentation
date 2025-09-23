@@ -111,7 +111,7 @@ body:
       placeholder: |
         - frontend/src/components/PresentationScreen.tsx
         - backend/src/socket/handlers.ts
-        - infra/docker-compose.yml
+        - compose.yaml
         - .github/workflows/
 
   - type: textarea
