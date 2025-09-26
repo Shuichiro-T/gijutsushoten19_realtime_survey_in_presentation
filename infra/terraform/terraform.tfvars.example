@@ -1,0 +1,17 @@
+# GCP設定
+project_id = "your-gcp-project-id"
+region     = "asia-northeast1"  # 東京リージョン
+
+# 環境設定
+environment = "dev"
+
+# インスタンス設定（コスト最適化）
+min_instances = 0               # アイドル時は0インスタンス
+max_instances = 5               # 最大5インスタンス
+
+# リソース制限（コスト最適化）
+cpu_limit    = "1"              # 1 vCPU
+memory_limit = "512Mi"          # 512MB メモリ
+
+# データベース設定（コスト最適化）
+database_tier = "db-f1-micro"   # 最小構成

@@ -5,11 +5,16 @@
 ## インフラアーキテクチャ
 
 ### デプロイメント構成
-- **コンテナ化**: Docker Compose
-- **開発環境**: ローカル開発用Docker構成
-- **データベース**: PostgreSQL（Docker コンテナ）
+- **開発環境**: Docker Compose によるローカル開発
+- **本番環境**: Google Cloud Platform（GCP）
+  - **コンテナオーケストレーション**: Cloud Run
+  - **データベース**: Cloud SQL for PostgreSQL
+  - **コンテナレジストリ**: Artifact Registry
+  - **Infrastructure as Code**: Terraform
 
 ### サービス構成
+
+#### 開発環境
 ```
 クライアント
     ↓
@@ -18,6 +23,17 @@
 バックエンド (Express.js, Port: 3001)
     ↓
 PostgreSQL (Docker Container)
+```
+
+#### 本番環境（GCP）
+```
+インターネット
+    ↓
+Cloud Run (Frontend)
+    ↓ (HTTPS)
+Cloud Run (Backend)
+    ↓
+Cloud SQL for PostgreSQL
 ```
 
 ### リアルタイム通信
@@ -51,7 +67,28 @@ PostgreSQL (Docker Container)
 - **スキーマ管理**: Prisma Schema
 
 ### 開発・運用
-- **コンテナ**: Docker + Docker Compose
-- **開発環境**: ローカルマルチコンテナ構成
+- **開発環境**: Docker + Docker Compose（ローカル）
+- **本番環境**: Google Cloud Platform
+  - **IaC**: Terraform による自動構築
+  - **CI/CD**: Google Cloud Build（推奨）
+  - **コンテナ**: 軽量化されたマルチステージビルド
+  - **スケーリング**: Cloud Run オートスケーリング
 - **パッケージ管理**: npm
 - **型安全性**: TypeScript (フロント・バック共通)
+
+## クラウド環境の特徴
+
+### コスト最適化
+- **Cloud Run**: 最小インスタンス数0（使用時のみ課金）
+- **Cloud SQL**: PER_USE課金モデル + 最小構成
+- **リージョン**: asia-northeast1（東京）でレイテンシ最適化
+
+### セキュリティ
+- **ネットワーク**: HTTPS通信の強制
+- **認証**: Google Cloud IAM
+- **環境変数**: 機密情報の安全な管理
+
+### 可用性・パフォーマンス
+- **オートスケーリング**: Cloud Run による自動スケール
+- **CDN**: 静的コンテンツの高速配信（Nginx + gzip圧縮）
+- **ヘルスチェック**: 自動化されたサービス監視
