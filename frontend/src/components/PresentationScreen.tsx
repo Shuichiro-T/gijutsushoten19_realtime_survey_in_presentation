@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './PresentationScreen.css';
+import { getRelativeApiBase } from '../utils/api';
 
 interface PresentationScreenProps {
   presentationUrl: string;
@@ -149,7 +150,7 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
     const fetchSurveys = async () => {
       setIsLoadingSurveys(true);
       try {
-        const response = await fetch(`/api/surveys/events/${eventId}/surveys`);
+        const response = await fetch(`${getRelativeApiBase()}/api/surveys/events/${eventId}/surveys`);
         const data = await response.json();
         
         if (data.success && data.data.surveys) {
@@ -184,7 +185,7 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
     const fetchSurveyResults = async () => {
       try {
         const resultsPromises = surveys.map(async (survey) => {
-          const response = await fetch(`/api/surveys/events/${survey.eventId}/surveys/${survey.surveyId}/results`);
+          const response = await fetch(`${getRelativeApiBase()}/api/surveys/events/${survey.eventId}/surveys/${survey.surveyId}/results`);
           const data = await response.json();
           if (data.success) {
             return data.data;
