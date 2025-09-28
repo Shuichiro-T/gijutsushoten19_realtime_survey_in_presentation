@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './SurveyResponse.css';
+import { getRelativeApiBase } from '../utils/api';
 
 interface Question {
   id: string;
@@ -51,7 +52,7 @@ const SurveyResponse: React.FC = () => {
 
         // APIからアンケートデータを取得
         // 開発環境ではプロキシ設定により /api が自動的にバックエンドに転送される
-        const response = await fetch(`/api/surveys/events/${eventId}/surveys/${surveyId}`);
+        const response = await fetch(`${getRelativeApiBase()}/api/surveys/events/${eventId}/surveys/${surveyId}`);
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -163,7 +164,7 @@ const SurveyResponse: React.FC = () => {
 
       // 選択された回答に対応する選択肢IDを取得
       // APIレスポンスから選択肢情報を取得するため、再度APIを呼び出す
-      const surveyResponse = await fetch(`/api/surveys/events/${eventId}/surveys/${surveyId}`);
+      const surveyResponse = await fetch(`${getRelativeApiBase()}/api/surveys/events/${eventId}/surveys/${surveyId}`);
       if (!surveyResponse.ok) {
         setError('アンケート情報の取得に失敗しました');
         return;
@@ -178,7 +179,7 @@ const SurveyResponse: React.FC = () => {
       }
 
       // 回答を送信
-      const response = await fetch('/api/surveys/responses', {
+      const response = await fetch(`${getRelativeApiBase()}/api/surveys/responses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

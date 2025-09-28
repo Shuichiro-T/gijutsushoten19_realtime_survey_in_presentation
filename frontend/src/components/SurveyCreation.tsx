@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './SurveyCreation.css';
+import { getApiUrl } from '../utils/api';
 
 interface SurveyCreationProps {
   eventId: string;
@@ -78,7 +79,7 @@ const SurveyCreation: React.FC<SurveyCreationProps> = ({
         .filter(option => option.text.trim())
         .map(option => option.text.trim());
 
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001'}/api/surveys`, {
+      const response = await fetch(getApiUrl('/api/surveys'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

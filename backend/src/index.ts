@@ -9,10 +9,22 @@ import { setupSocketHandlers } from './socket/handlers';
 const app = express();
 const server = createServer(app);
 
+// CORS設定用の関数
+const getAllowedOrigins = () => {
+  const frontendUrl = process.env.FRONTEND_URL;
+  const defaultOrigins = ["http://localhost:3000"];
+  
+  if (frontendUrl) {
+    return [frontendUrl, ...defaultOrigins];
+  }
+  
+  return defaultOrigins;
+};
+
 // Socket.IO設定
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: getAllowedOrigins(),
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -21,7 +33,7 @@ const io = new Server(server, {
 // ミドルウェア設定
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: getAllowedOrigins(),
   credentials: true,
 }));
 app.use(express.json());

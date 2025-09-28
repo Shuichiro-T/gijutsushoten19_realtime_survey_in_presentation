@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './EventRegistration.css';
+import { getApiUrl } from '../utils/api';
 
 interface EventRegistrationProps {
   onEventCreated: (eventId: string, title: string) => void;
@@ -34,7 +35,7 @@ const EventRegistration: React.FC<EventRegistrationProps> = ({
     setError('');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001'}/api/surveys/events`, {
+      const response = await fetch(getApiUrl('/api/surveys/events'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
