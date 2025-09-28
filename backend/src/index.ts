@@ -14,17 +14,48 @@ const getAllowedOrigins = () => {
   const frontendUrl = process.env.FRONTEND_URL;
   const defaultOrigins = ["http://localhost:3000"];
   
-  if (frontendUrl) {
+  if (frontendUrl && frontendUrl !== 'https://placeholder-frontend-url') {
     return [frontendUrl, ...defaultOrigins];
+  }
+  
+  // Cloud Run環境での動的ドメイン対応
+  if (process.env.NODE_ENV === 'production') {
+    // Google Cloud Runのドメインパターンに一致する場合は許可
+    return (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      if (!origin) {
+        // same-originリクエストを許可
+        return callback(null, true);
+      }
+      
+      // ローカル開発環境
+      if (origin.startsWith('http://localhost:')) {
+        return callback(null, true);
+      }
+      
+      // Google Cloud Runドメイン
+      if (origin.includes('.run.app') || origin.includes('.a.run.app')) {
+        return callback(null, true);
+      }
+      
+      // 設定されたフロントエンドURL
+      if (frontendUrl && origin === frontendUrl) {
+        return callback(null, true);
+      }
+      
+      // その他は拒否
+      console.warn(`CORS: Blocked origin: ${origin}`);
+      return callback(new Error('Not allowed by CORS'), false);
+    };
   }
   
   return defaultOrigins;
 };
 
 // Socket.IO設定
+const allowedOrigins = getAllowedOrigins();
 const io = new Server(server, {
   cors: {
-    origin: getAllowedOrigins(),
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -33,7 +64,7 @@ const io = new Server(server, {
 // ミドルウェア設定
 app.use(helmet());
 app.use(cors({
-  origin: getAllowedOrigins(),
+  origin: allowedOrigins,
   credentials: true,
 }));
 app.use(express.json());

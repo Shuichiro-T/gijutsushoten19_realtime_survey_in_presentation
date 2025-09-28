@@ -6,14 +6,28 @@
  * 環境に応じたバックエンドのベースURLを取得
  */
 export const getBackendUrl = (): string => {
-  // 環境変数からバックエンドURLを取得
+  // 1. 環境変数からバックエンドURLを取得
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   
-  if (backendUrl) {
+  if (backendUrl && backendUrl !== 'https://placeholder-backend-url') {
     return backendUrl;
   }
   
-  // 開発環境でのデフォルトURL
+  // 2. 本番環境でHTMLに埋め込まれた設定を確認
+  if (typeof window !== 'undefined') {
+    const metaBackendUrl = document.querySelector('meta[name="backend-url"]')?.getAttribute('content');
+    if (metaBackendUrl && metaBackendUrl !== 'https://placeholder-backend-url') {
+      return metaBackendUrl;
+    }
+    
+    // 3. window.envオブジェクトからの取得（nginx環境変数注入）
+    const windowEnv = (window as any).env;
+    if (windowEnv?.REACT_APP_BACKEND_URL && windowEnv.REACT_APP_BACKEND_URL !== 'https://placeholder-backend-url') {
+      return windowEnv.REACT_APP_BACKEND_URL;
+    }
+  }
+  
+  // 4. 開発環境でのデフォルトURL
   return 'http://localhost:3001';
 };
 

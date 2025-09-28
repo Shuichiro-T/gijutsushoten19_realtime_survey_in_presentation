@@ -129,19 +129,29 @@ resource "null_resource" "update_service_urls" {
     google_cloud_run_v2_service_iam_binding.frontend_public
   ]
 
+  # サービスURLが変更されるたびに再実行
+  triggers = {
+    frontend_url = google_cloud_run_v2_service.frontend.uri
+    backend_url  = google_cloud_run_v2_service.backend.uri
+  }
+
   provisioner "local-exec" {
     command = <<-EOT
+      echo "Updating backend service with frontend URL: ${google_cloud_run_v2_service.frontend.uri}"
       # バックエンドサービスの環境変数を更新
       gcloud run services update ${google_cloud_run_v2_service.backend.name} \
         --region=${var.region} \
-        --update-env-vars=FRONTEND_URL=${google_cloud_run_v2_service.frontend.uri} \
+        --update-env-vars=FRONTEND_URL=${google_cloud_run_v2_service.frontend.uri},NODE_ENV=production \
         --project=${var.project_id}
 
+      echo "Updating frontend service with backend URL: ${google_cloud_run_v2_service.backend.uri}"
       # フロントエンドサービスの環境変数を更新
       gcloud run services update ${google_cloud_run_v2_service.frontend.name} \
         --region=${var.region} \
         --update-env-vars=REACT_APP_BACKEND_URL=${google_cloud_run_v2_service.backend.uri} \
         --project=${var.project_id}
+      
+      echo "Services updated successfully!"
     EOT
   }
 

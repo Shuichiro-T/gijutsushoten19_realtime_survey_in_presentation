@@ -25,8 +25,12 @@ COPY --from=builder /app/build /usr/share/nginx/html
 # Nginxの設定ファイルをコピー（SPAルーティング対応）
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# 環境変数注入スクリプトをコピー
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # ポート3000を公開（Cloud Run対応）
 EXPOSE 3000
 
-# Nginxを起動
-CMD ["nginx", "-g", "daemon off;"]
+# エントリーポイントスクリプトを実行
+CMD ["/entrypoint.sh"]
