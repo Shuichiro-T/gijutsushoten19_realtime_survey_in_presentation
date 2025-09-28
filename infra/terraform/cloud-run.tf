@@ -28,7 +28,7 @@ resource "google_cloud_run_v2_service" "backend" {
 
       env {
         name  = "FRONTEND_URL"
-        value = google_cloud_run_v2_service.frontend.uri
+        value = "https://placeholder-frontend-url"
       }
 
       env {
@@ -78,7 +78,7 @@ resource "google_cloud_run_v2_service" "frontend" {
 
       env {
         name  = "REACT_APP_BACKEND_URL"
-        value = google_cloud_run_v2_service.backend.uri
+        value = "https://placeholder-backend-url"
       }
 
       resources {
@@ -122,4 +122,36 @@ resource "google_cloud_run_v2_service_iam_binding" "frontend_public" {
   name     = google_cloud_run_v2_service.frontend.name
   role     = "roles/run.invoker"
   members  = ["allUsers"]
+}
+
+# サービス作成後に正しい環境変数を設定するためのnull_resource
+resource "null_resource" "update_service_urls" {
+  depends_on = [
+    google_cloud_run_v2_service.backend,
+    google_cloud_run_v2_service.frontend,
+    google_cloud_run_v2_service_iam_binding.backend_public,
+    google_cloud_run_v2_service_iam_binding.frontend_public
+  ]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      # バックエンドサービスの環境変数を更新
+      gcloud run services update ${google_cloud_run_v2_service.backend.name} \
+        --region=${var.region} \
+        --update-env-vars=FRONTEND_URL=${google_cloud_run_v2_service.frontend.uri} \
+        --project=${var.project_id}
+
+      # フロントエンドサービスの環境変数を更新
+      gcloud run services update ${google_cloud_run_v2_service.frontend.name} \
+        --region=${var.region} \
+        --update-env-vars=REACT_APP_BACKEND_URL=${google_cloud_run_v2_service.backend.uri} \
+        --project=${var.project_id}
+    EOT
+  }
+
+  # サービスが削除される際は何もしない
+  provisioner "local-exec" {
+    when    = destroy
+    command = "echo 'Services being destroyed, no cleanup needed'"
+  }
 }
