@@ -49,12 +49,32 @@ gcloud services enable sql-component.googleapis.com
 gcloud services enable sqladmin.googleapis.com
 gcloud services enable artifactregistry.googleapis.com
 
+# Docker認証設定
+echo -e "${YELLOW}Artifact Registryの認証を設定中...${NC}"
+gcloud auth configure-docker ${REGION}-docker.pkg.dev
+
+# Artifact Registryリポジトリを先に作成
+echo -e "${YELLOW}Artifact Registryリポジトリを作成中...${NC}"
+cd terraform
+terraform init
+terraform apply -auto-approve -target=google_artifact_registry_repository.repo
+
+# Dockerリポジトリの情報を取得
+DOCKER_REPO=$(terraform output -raw docker_repo_url)
+cd ..
+
+# Dockerイメージのビルド・プッシュ
+echo -e "${YELLOW}バックエンドのDockerイメージをビルド・プッシュ中...${NC}"
+docker build -t ${DOCKER_REPO}/backend:latest ../backend/
+docker push ${DOCKER_REPO}/backend:latest
+
+echo -e "${YELLOW}フロントエンドのDockerイメージをビルド・プッシュ中...${NC}"
+docker build -t ${DOCKER_REPO}/frontend:latest ../frontend/
+docker push ${DOCKER_REPO}/frontend:latest
+
 # Terraformのインフラ構築
 echo -e "${YELLOW}Terraformでインフラを構築中...${NC}"
 cd terraform
-
-# Terraform初期化
-terraform init
 
 # インフラの計画
 terraform plan
@@ -70,24 +90,10 @@ else
 fi
 
 # Terraformのアウトプットを取得
-DOCKER_REPO=$(terraform output -raw docker_repo_url)
 FRONTEND_URL=$(terraform output -raw frontend_url)
 BACKEND_URL=$(terraform output -raw backend_url)
 
 cd ..
-
-# Docker認証設定
-echo -e "${YELLOW}Artifact Registryの認証を設定中...${NC}"
-gcloud auth configure-docker ${REGION}-docker.pkg.dev
-
-# Dockerイメージのビルド・プッシュ
-echo -e "${YELLOW}バックエンドのDockerイメージをビルド・プッシュ中...${NC}"
-docker build -t ${DOCKER_REPO}/backend:latest ../backend/
-docker push ${DOCKER_REPO}/backend:latest
-
-echo -e "${YELLOW}フロントエンドのDockerイメージをビルド・プッシュ中...${NC}"
-docker build -t ${DOCKER_REPO}/frontend:latest ../frontend/
-docker push ${DOCKER_REPO}/frontend:latest
 
 # Cloud Runサービスの更新（Terraformで作成済みのサービスにデプロイ）
 echo -e "${YELLOW}Cloud Runサービスを更新中...${NC}"

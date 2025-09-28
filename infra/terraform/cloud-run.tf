@@ -21,10 +21,6 @@ resource "google_cloud_run_v2_service" "backend" {
         container_port = 3001
       }
 
-      env {
-        name  = "PORT"
-        value = "3001"
-      }
 
       env {
         name  = "FRONTEND_URL"
