@@ -39,9 +39,10 @@ resource "google_sql_database_instance" "postgres" {
 
     # コスト最適化の設定
     pricing_plan = "PER_USE"                      # 使用量ベース課金
+    
+    # ラベル設定（settingsブロック内でuser_labelsを使用）
+    user_labels = local.labels
   }
-
-  labels = local.labels
 }
 
 # データベース作成
