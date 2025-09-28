@@ -78,7 +78,7 @@ const SurveyCreation: React.FC<SurveyCreationProps> = ({
         .filter(option => option.text.trim())
         .map(option => option.text.trim());
 
-      const response = await fetch('http://localhost:3001/api/surveys', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001'}/api/surveys`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

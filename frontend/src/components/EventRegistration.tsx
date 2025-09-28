@@ -34,7 +34,7 @@ const EventRegistration: React.FC<EventRegistrationProps> = ({
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/surveys/events', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001'}/api/surveys/events`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
