@@ -9,6 +9,8 @@ resource "google_sql_database_instance" "postgres" {
   database_version    = "POSTGRES_15"
   region              = var.region
   deletion_protection = false # 開発環境では削除可能にする
+  
+  depends_on = [google_service_networking_connection.private_vpc_connection]
 
   settings {
     tier                        = var.database_tier
@@ -30,11 +32,9 @@ resource "google_sql_database_instance" "postgres" {
     }
 
     ip_configuration {
-      ipv4_enabled    = true
-      authorized_networks {
-        value = "0.0.0.0/0"
-        name  = "all"
-      }
+      ipv4_enabled                                  = false  # パブリックIPを無効化
+      private_network                              = google_compute_network.vpc.id
+      enable_private_path_for_google_cloud_services = true
     }
 
     # コスト最適化の設定

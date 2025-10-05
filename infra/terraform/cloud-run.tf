@@ -29,7 +29,7 @@ resource "google_cloud_run_v2_service" "backend" {
 
       env {
         name  = "DATABASE_URL"
-        value = "postgresql://${google_sql_user.user.name}:${random_password.db_password.result}@${google_sql_database_instance.postgres.public_ip_address}:5432/${google_sql_database.database.name}"
+        value = "postgresql://${google_sql_user.user.name}:${random_password.db_password.result}@${google_sql_database_instance.postgres.private_ip_address}:5432/${google_sql_database.database.name}"
       }
 
       env {
@@ -54,6 +54,12 @@ resource "google_cloud_run_v2_service" "backend" {
 
     # コスト最適化: リクエストがない場合はインスタンスを0に
     max_instance_request_concurrency = 100
+    
+    # VPC接続設定
+    vpc_access {
+      connector = google_vpc_access_connector.connector.id
+      egress    = "PRIVATE_RANGES_ONLY"
+    }
   }
 
   traffic {
