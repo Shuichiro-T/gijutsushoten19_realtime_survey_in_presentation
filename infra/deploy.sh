@@ -107,12 +107,22 @@ gcloud run services update realtime-survey-frontend \
 
 # データベースマイグレーション
 echo -e "${YELLOW}データベースマイグレーションを実行中...${NC}"
+# データベース接続情報を取得
+DB_USER=$(cd terraform && terraform output -raw database_user)
+DB_PASSWORD=$(cd terraform && terraform output -raw database_password)
+DB_HOST=$(cd terraform && terraform output -raw database_host)
+DB_NAME=$(cd terraform && terraform output -raw database_name)
+
+echo "データベース接続情報:"
+echo "  ユーザー: $DB_USER"
+echo "  ホスト: $DB_HOST" 
+echo "  データベース名: $DB_NAME"
+
 # マイグレーション用のCloud Runジョブを一時的に作成して実行
-DATABASE_URL=$(cd terraform && terraform output -raw database_password | sed 's/.*/"&"/')
 gcloud run jobs create migration-job \
     --image=${DOCKER_REPO}/backend:latest \
     --region=$REGION \
-    --set-env-vars="DATABASE_URL=postgresql://app_user:$(cd terraform && terraform output -raw database_password)@$(cd terraform && terraform output -raw database_host):5432/realtime-survey" \
+    --set-env-vars="DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}" \
     --command="npx" \
     --args="prisma,migrate,deploy"
 

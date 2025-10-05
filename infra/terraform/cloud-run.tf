@@ -32,6 +32,11 @@ resource "google_cloud_run_v2_service" "backend" {
         value = "postgresql://${google_sql_user.user.name}:${random_password.db_password.result}@${google_sql_database_instance.postgres.public_ip_address}:5432/${google_sql_database.database.name}"
       }
 
+      env {
+        name  = "NODE_ENV"
+        value = "production"
+      }
+
       resources {
         limits = {
           cpu    = var.cpu_limit
