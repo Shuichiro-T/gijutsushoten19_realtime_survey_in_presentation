@@ -184,6 +184,8 @@ gcloud run jobs delete migration-job --region=asia-northeast1 --quiet
 4. **データベース接続エラー**
    - Cloud SQLインスタンスの公開IPが有効か確認
    - データベースユーザー・パスワードの確認
+   - 正しいユーザー名が使用されているか確認（`app_user`が設定されている）
+   - Cloud SQLのユーザー管理で想定外のユーザー（`administrator`等）が作成されていないか確認
 
 ### ログの確認
 ```bash
