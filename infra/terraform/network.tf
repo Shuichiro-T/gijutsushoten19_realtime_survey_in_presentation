@@ -2,8 +2,6 @@
 resource "google_compute_network" "vpc" {
   name                    = "${local.app_name}-vpc"
   auto_create_subnetworks = false
-  
-  labels = local.labels
 }
 
 # サブネット作成
