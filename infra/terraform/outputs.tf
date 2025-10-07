@@ -20,7 +20,7 @@ output "backend_url" {
 
 output "database_host" {
   description = "データベースのホスト"
-  value       = google_sql_database_instance.postgres.public_ip_address
+  value       = google_sql_database_instance.postgres.private_ip_address
 }
 
 output "database_name" {
