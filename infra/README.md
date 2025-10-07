@@ -77,6 +77,8 @@ gcloud services enable run.googleapis.com
 gcloud services enable sql-component.googleapis.com
 gcloud services enable sqladmin.googleapis.com
 gcloud services enable artifactregistry.googleapis.com
+gcloud services enable vpcaccess.googleapis.com
+gcloud services enable servicenetworking.googleapis.com
 ```
 
 #### 3.2 Terraformでインフラ構築
@@ -174,6 +176,11 @@ gcloud run jobs delete migration-job --region=asia-northeast1 --quiet
 2. **APIが有効化されていない**
    ```bash
    gcloud services enable [API-NAME]
+   ```
+   特に、VPCアクセスコネクタを使用する場合は以下が必要：
+   ```bash
+   gcloud services enable vpcaccess.googleapis.com
+   gcloud services enable servicenetworking.googleapis.com
    ```
 
 3. **Docker認証エラー**

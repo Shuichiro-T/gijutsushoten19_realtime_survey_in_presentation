@@ -48,6 +48,8 @@ gcloud services enable run.googleapis.com
 gcloud services enable sql-component.googleapis.com
 gcloud services enable sqladmin.googleapis.com
 gcloud services enable artifactregistry.googleapis.com
+gcloud services enable vpcaccess.googleapis.com
+gcloud services enable servicenetworking.googleapis.com
 
 # Docker認証設定
 echo -e "${YELLOW}Artifact Registryの認証を設定中...${NC}"
