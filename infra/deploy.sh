@@ -114,16 +114,20 @@ DB_USER=$(cd terraform && terraform output -raw database_user)
 DB_PASSWORD=$(cd terraform && terraform output -raw database_password)
 DB_HOST=$(cd terraform && terraform output -raw database_host)
 DB_NAME=$(cd terraform && terraform output -raw database_name)
+VPC_CONNECTOR=$(cd terraform && terraform output -raw vpc_connector_name)
 
 echo "データベース接続情報:"
 echo "  ユーザー: $DB_USER"
 echo "  ホスト: $DB_HOST" 
 echo "  データベース名: $DB_NAME"
+echo "  VPCコネクタ: $VPC_CONNECTOR"
 
 # マイグレーション用のCloud Runジョブを一時的に作成して実行
 gcloud run jobs create migration-job \
     --image=${DOCKER_REPO}/backend:latest \
     --region=$REGION \
+    --vpc-connector=$VPC_CONNECTOR \
+    --vpc-egress=private-ranges-only \
     --set-env-vars="DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}" \
     --command="npx" \
     --args="prisma,migrate,deploy"
