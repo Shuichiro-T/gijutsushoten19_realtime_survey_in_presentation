@@ -48,3 +48,8 @@ output "docker_repo_url" {
   description = "DockerイメージのリポジトリURL"
   value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}"
 }
+
+output "vpc_connector_name" {
+  description = "VPCコネクタ名"
+  value       = google_vpc_access_connector.connector.name
+}
