@@ -148,21 +148,38 @@ resource "null_resource" "update_service_urls" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      echo "Updating backend service with frontend URL: ${google_cloud_run_v2_service.frontend.uri}"
-      # バックエンドサービスの環境変数を更新
-      gcloud run services update ${google_cloud_run_v2_service.backend.name} \
+      set -e  # エラー時に停止
+      
+      echo "=== Cloud Run Services URL Update ==="
+      echo "Frontend URL: ${google_cloud_run_v2_service.frontend.uri}"
+      echo "Backend URL: ${google_cloud_run_v2_service.backend.uri}"
+      
+      echo "Updating backend service with frontend URL..."
+      if ! gcloud run services update ${google_cloud_run_v2_service.backend.name} \
         --region=${var.region} \
         --update-env-vars=FRONTEND_URL=${google_cloud_run_v2_service.frontend.uri},NODE_ENV=production \
-        --project=${var.project_id}
+        --project=${var.project_id}; then
+        echo "ERROR: Failed to update backend service"
+        exit 1
+      fi
 
-      echo "Updating frontend service with backend URL: ${google_cloud_run_v2_service.backend.uri}"
-      # フロントエンドサービスの環境変数を更新
-      gcloud run services update ${google_cloud_run_v2_service.frontend.name} \
+      echo "Updating frontend service with backend URL..."
+      if ! gcloud run services update ${google_cloud_run_v2_service.frontend.name} \
         --region=${var.region} \
         --update-env-vars=REACT_APP_BACKEND_URL=${google_cloud_run_v2_service.backend.uri} \
-        --project=${var.project_id}
+        --project=${var.project_id}; then
+        echo "ERROR: Failed to update frontend service"
+        exit 1
+      fi
       
-      echo "Services updated successfully!"
+      # 設定の確認
+      echo "Verifying frontend service environment variables..."
+      gcloud run services describe ${google_cloud_run_v2_service.frontend.name} \
+        --region=${var.region} \
+        --project=${var.project_id} \
+        --format="value(spec.template.spec.template.spec.containers[0].env[].name,spec.template.spec.template.spec.containers[0].env[].value)" | grep REACT_APP_BACKEND_URL || echo "WARNING: REACT_APP_BACKEND_URL not found in service description"
+      
+      echo "=== Services updated successfully! ==="
     EOT
   }
 

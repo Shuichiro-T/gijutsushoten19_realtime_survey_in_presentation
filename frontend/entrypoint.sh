@@ -9,7 +9,8 @@ if [ -n "${REACT_APP_BACKEND_URL}" ] && [ "${REACT_APP_BACKEND_URL}" != "https:/
     echo "Injecting backend URL: ${REACT_APP_BACKEND_URL}"
     sed -i "s|__BACKEND_URL__|${REACT_APP_BACKEND_URL}|g" /usr/share/nginx/html/index.html
 else
-    echo "Using development backend URL"
+    echo "WARNING: REACT_APP_BACKEND_URL not set or is placeholder. Using development backend URL."
+    echo "In production, this should be set to the actual backend URL."
     sed -i "s|__BACKEND_URL__|http://localhost:3001|g" /usr/share/nginx/html/index.html
 fi
 
