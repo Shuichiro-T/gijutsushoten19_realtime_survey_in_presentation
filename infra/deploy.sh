@@ -103,8 +103,10 @@ gcloud run services update realtime-survey-backend \
     --image=${DOCKER_REPO}/backend:latest \
     --region=$REGION
 
+# フロントエンドにバックエンドURLを環境変数として設定
 gcloud run services update realtime-survey-frontend \
     --image=${DOCKER_REPO}/frontend:latest \
+    --set-env-vars="REACT_APP_BACKEND_URL=${BACKEND_URL}" \
     --region=$REGION
 
 # データベースマイグレーション
