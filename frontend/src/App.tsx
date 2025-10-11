@@ -4,7 +4,8 @@ import {
   Routes, 
   Route,
   createBrowserRouter,
-  RouterProvider 
+  RouterProvider,
+  useParams 
 } from 'react-router-dom';
 import './App.css';
 import PresentationScreen from './components/PresentationScreen';
@@ -189,11 +190,33 @@ const PresenterApp: React.FC = () => {
   }
 };
 
+// パスパラメータ対応のイベント管理画面コンポーネント
+const EventManagementRoute: React.FC = () => {
+  const { eventId } = useParams<{ eventId: string }>();
+  
+  if (!eventId) {
+    return (
+      <div className="App">
+        <div className="error-message">
+          <h1>エラー</h1>
+          <p>イベントIDが指定されていません</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <EventManagement eventId={eventId} />;
+};
+
 // React Router設定
 const router = createBrowserRouter([
   {
     path: "/events/:eventId/surveys/:surveyId",
     element: <SurveyResponse />,
+  },
+  {
+    path: "/events/:eventId",
+    element: <EventManagementRoute />,
   },
   {
     path: "/*",
