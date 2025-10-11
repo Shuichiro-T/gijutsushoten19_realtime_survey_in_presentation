@@ -86,7 +86,7 @@ const PresenterApp: React.FC = () => {
           eventId={eventId}
           eventTitle={eventTitle}
           onBack={handleBackToEventRegistration}
-          onStartPresentation={() => setCurrentState('presentation-setup')}
+          onStartPresentation={() => setCurrentState('presenting')}
           onCreateSurvey={handleCreateSurvey}
           onStartPresentationWithUrl={handleStartPresentationWithUrl}
         />

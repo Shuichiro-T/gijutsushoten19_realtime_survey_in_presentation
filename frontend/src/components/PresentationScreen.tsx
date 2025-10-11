@@ -229,13 +229,23 @@ const PresentationScreen: React.FC<PresentationScreenProps> = ({
       className={`presentation-container ${isFullscreen ? 'fullscreen' : ''}`}
     >
       {/* Google Slides埋め込み */}
-      <iframe
-        src={getEmbedUrl(presentationUrl)}
-        className="presentation-iframe"
-        frameBorder="0"
-        allowFullScreen
-        title="Google Slides Presentation"
-      />
+      {presentationUrl ? (
+        <iframe
+          src={getEmbedUrl(presentationUrl)}
+          className="presentation-iframe"
+          frameBorder="0"
+          allowFullScreen
+          title="Google Slides Presentation"
+        />
+      ) : (
+        <div className="presentation-placeholder">
+          <div className="placeholder-content">
+            <h2>プレゼンテーション画面</h2>
+            <p>スライドURLが設定されていません</p>
+            <p>設定画面に戻ってURLを入力してください</p>
+          </div>
+        </div>
+      )}
       
 
       {/* コントロールパネル */}
