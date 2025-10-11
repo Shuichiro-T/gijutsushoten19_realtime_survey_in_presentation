@@ -211,6 +211,233 @@
   line-height: 1.5;
 }
 
+/* アンケート一覧セクション */
+.surveys-section {
+  background-color: #f8f9fa;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #e9ecef;
+}
+
+.surveys-section h2 {
+  margin: 0 0 20px 0;
+  color: #495057;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.no-surveys {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.surveys-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.survey-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.survey-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.survey-info {
+  flex: 1;
+  text-align: left;
+}
+
+.survey-info h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.survey-info p {
+  margin: 0 0 8px 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.survey-info small {
+  color: #adb5bd;
+  font-size: 0.85rem;
+}
+
+.survey-button {
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  margin-left: 15px;
+}
+
+.survey-button:hover {
+  background: #5a67d8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* QRコードモーダル */
+.qr-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.qr-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.qr-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.qr-modal-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.qr-modal-content {
+  padding: 25px;
+}
+
+.survey-url-section {
+  margin-bottom: 30px;
+}
+
+.survey-url-section h3 {
+  margin: 0 0 15px 0;
+  color: #495057;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.url-display {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.url-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.copy-url-button {
+  padding: 12px 20px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.copy-url-button:hover {
+  background: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.qr-placeholder {
+  text-align: center;
+}
+
+.qr-placeholder p {
+  margin: 0 0 15px 0;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.qr-placeholder-box {
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 40px 20px;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.qr-placeholder-box span {
+  font-weight: 600;
+  color: #495057;
+}
+
+.qr-placeholder-box small {
+  font-size: 0.8rem;
+  word-break: break-all;
+  color: #adb5bd;
+}
+
 @media (max-width: 600px) {
   .event-management-container {
     padding: 30px 20px;
@@ -232,5 +459,28 @@
   
   .copy-button {
     align-self: stretch;
+  }
+
+  .survey-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .survey-button {
+    margin-left: 0;
+    align-self: stretch;
+  }
+
+  .url-display {
+    flex-direction: column;
+  }
+
+  .qr-modal {
+    margin: 10px;
+  }
+
+  .qr-modal-content {
+    padding: 20px;
   }
 }
