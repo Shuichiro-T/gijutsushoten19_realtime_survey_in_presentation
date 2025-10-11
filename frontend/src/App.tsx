@@ -35,6 +35,11 @@ const PresenterApp: React.FC = () => {
     }
   };
 
+  const handleStartPresentationWithUrl = (url: string) => {
+    setPresentationUrl(url);
+    setCurrentState('presenting');
+  };
+
   const handleStopPresentation = () => {
     setCurrentState('presentation-setup');
   };
@@ -83,6 +88,7 @@ const PresenterApp: React.FC = () => {
           onBack={handleBackToEventRegistration}
           onStartPresentation={() => setCurrentState('presentation-setup')}
           onCreateSurvey={handleCreateSurvey}
+          onStartPresentationWithUrl={handleStartPresentationWithUrl}
         />
       );
 
@@ -205,7 +211,17 @@ const EventManagementRoute: React.FC = () => {
     );
   }
 
-  return <EventManagement eventId={eventId} />;
+  // URL直接アクセス時は簡単なプレゼンテーション遷移ハンドラーのみ提供
+  const handlePresentationStart = () => {
+    window.location.href = '/';
+  };
+
+  return (
+    <EventManagement 
+      eventId={eventId} 
+      onStartPresentation={handlePresentationStart}
+    />
+  );
 };
 
 // React Router設定

@@ -20,6 +20,7 @@ interface EventManagementProps {
   onBack?: () => void;
   onStartPresentation?: () => void;
   onCreateSurvey?: () => void;
+  onStartPresentationWithUrl?: (url: string) => void;
 }
 
 const EventManagement: React.FC<EventManagementProps> = ({
@@ -27,7 +28,8 @@ const EventManagement: React.FC<EventManagementProps> = ({
   eventTitle,
   onBack,
   onStartPresentation,
-  onCreateSurvey
+  onCreateSurvey,
+  onStartPresentationWithUrl
 }) => {
   const [copiedEventId, setCopiedEventId] = useState<boolean>(false);
   const [surveys, setSurveys] = useState<Survey[]>([]);
@@ -36,6 +38,7 @@ const EventManagement: React.FC<EventManagementProps> = ({
   const [eventInfo, setEventInfo] = useState<{title: string} | null>(null);
   const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
   const [showQRCode, setShowQRCode] = useState<boolean>(false);
+  const [presentationUrl, setPresentationUrl] = useState<string>('');
 
   // イベント情報とアンケート一覧を取得
   useEffect(() => {
@@ -98,6 +101,12 @@ const EventManagement: React.FC<EventManagementProps> = ({
     return `${window.location.origin}/events/${eventId}/surveys/${surveyId}`;
   };
 
+  const handleStartPresentationWithUrl = () => {
+    if (presentationUrl.trim() && onStartPresentationWithUrl) {
+      onStartPresentationWithUrl(presentationUrl.trim());
+    }
+  };
+
   if (loading) {
     return (
       <div className="event-management">
@@ -150,6 +159,29 @@ const EventManagement: React.FC<EventManagementProps> = ({
                 {copiedEventId ? 'コピー済み!' : 'コピー'}
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* プレゼンテーション開始セクション */}
+        <div className="presentation-section">
+          <h2>プレゼンテーション開始</h2>
+          <div className="presentation-url-input">
+            <label htmlFor="presentation-url">スライドURL:</label>
+            <input
+              id="presentation-url"
+              type="url"
+              value={presentationUrl}
+              onChange={(e) => setPresentationUrl(e.target.value)}
+              placeholder="https://docs.google.com/presentation/d/..."
+              className="url-input-field"
+            />
+            <button 
+              onClick={handleStartPresentationWithUrl}
+              disabled={!presentationUrl.trim()}
+              className="start-presentation-button"
+            >
+              プレゼンテーション開始
+            </button>
           </div>
         </div>
 
