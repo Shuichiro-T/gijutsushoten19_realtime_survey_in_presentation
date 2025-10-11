@@ -28,6 +28,7 @@ const SurveyCreation: React.FC<SurveyCreationProps> = ({
   ]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [createdSurvey, setCreatedSurvey] = useState<{surveyId: string, title: string} | null>(null);
 
   const addOption = () => {
     const newId = (Math.max(...options.map(opt => parseInt(opt.id))) + 1).toString();
@@ -95,7 +96,10 @@ const SurveyCreation: React.FC<SurveyCreationProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        onSurveyCreated(data.data.surveyId, data.data.title);
+        setCreatedSurvey({
+          surveyId: data.data.surveyId,
+          title: data.data.title
+        });
       } else {
         setError(data.error || 'アンケートの作成に失敗しました');
       }
@@ -106,6 +110,98 @@ const SurveyCreation: React.FC<SurveyCreationProps> = ({
       setIsSubmitting(false);
     }
   };
+
+  const generateSurveyUrl = (surveyId: string): string => {
+    const currentHost = window.location.origin;
+    return `${currentHost}/events/${eventId}/surveys/${surveyId}`;
+  };
+
+  const generateQRCodeUrl = (url: string): string => {
+    // QR Server API を使用してQRコードを生成
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+  };
+
+  const handleBackToList = () => {
+    if (createdSurvey) {
+      onSurveyCreated(createdSurvey.surveyId, createdSurvey.title);
+    } else {
+      onBack();
+    }
+  };
+
+  // アンケート作成成功後の画面
+  if (createdSurvey) {
+    const surveyUrl = generateSurveyUrl(createdSurvey.surveyId);
+    const qrCodeUrl = generateQRCodeUrl(surveyUrl);
+
+    return (
+      <div className="survey-creation">
+        <div className="survey-creation-container">
+          <h1>アンケート作成完了</h1>
+          
+          <div className="success-message">
+            <div className="success-icon">✓</div>
+            <h2>アンケートが作成されました！</h2>
+            <p><strong>アンケートタイトル:</strong> {createdSurvey.title}</p>
+          </div>
+
+          <div className="survey-url-section">
+            <h3>回答用URL</h3>
+            <div className="url-display">
+              <input 
+                type="text" 
+                value={surveyUrl} 
+                readOnly 
+                className="url-input"
+                onClick={(e) => e.currentTarget.select()}
+              />
+              <button 
+                onClick={() => navigator.clipboard.writeText(surveyUrl)}
+                className="copy-button"
+                title="URLをコピー"
+              >
+                コピー
+              </button>
+            </div>
+          </div>
+
+          <div className="qr-code-section">
+            <h3>QRコード</h3>
+            <div className="qr-code-container">
+              <img 
+                src={qrCodeUrl} 
+                alt="アンケート回答用QRコード" 
+                className="qr-code-image"
+                onError={(e) => {
+                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0Ij5RUuOCs+ODvOODieOBruWPluW+l+OBq+WkseaVl+OBl+OBvuOBl+OBnzwvdGV4dD48L3N2Zz4=';
+                }}
+              />
+              <p className="qr-code-caption">スマートフォンでQRコードを読み取ってアンケートに回答できます</p>
+            </div>
+          </div>
+
+          <div className="instructions">
+            <h3>参加者への案内方法:</h3>
+            <ul>
+              <li>上記のURLを参加者に共有してください</li>
+              <li>QRコードをプレゼンテーション画面に表示することもできます</li>
+              <li>参加者はスマートフォンやPCからアンケートに回答できます</li>
+            </ul>
+          </div>
+
+          <div className="form-actions">
+            <button
+              type="button"
+              onClick={handleBackToList}
+              className="back-button"
+            >
+              イベント管理に戻る
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="survey-creation">

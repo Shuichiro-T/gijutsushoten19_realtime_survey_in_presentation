@@ -268,6 +268,157 @@
   margin-bottom: 0;
 }
 
+/* アンケート作成成功画面のスタイル */
+.success-message {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 24px;
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+}
+
+.success-icon {
+  font-size: 3rem;
+  color: #28a745;
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+.success-message h2 {
+  color: #155724;
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.success-message p {
+  color: #155724;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* URL表示セクション */
+.survey-url-section {
+  margin-bottom: 30px;
+}
+
+.survey-url-section h3 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.url-display {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.url-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: monospace;
+  background: #f8f9fa;
+  cursor: pointer;
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.copy-button {
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.copy-button:hover {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* QRコードセクション */
+.qr-code-section {
+  margin-bottom: 30px;
+}
+
+.qr-code-section h3 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.qr-code-container {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.qr-code-image {
+  max-width: 200px;
+  height: auto;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qr-code-caption {
+  margin: 16px 0 0 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* 手順説明セクション */
+.instructions {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #e7f3ff;
+  border: 1px solid #bee5eb;
+  border-radius: 8px;
+}
+
+.instructions h3 {
+  margin: 0 0 12px 0;
+  color: #055160;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.instructions ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #055160;
+}
+
+.instructions li {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.instructions li:last-child {
+  margin-bottom: 0;
+}
+
 @media (max-width: 768px) {
   .survey-creation {
     padding: 10px;
@@ -299,5 +450,26 @@
   .option-number {
     min-width: 20px;
     font-size: 0.9rem;
+  }
+
+  /* レスポンシブ対応: アンケート作成成功画面 */
+  .url-display {
+    flex-direction: column;
+  }
+  
+  .copy-button {
+    align-self: stretch;
+  }
+  
+  .qr-code-image {
+    max-width: 150px;
+  }
+  
+  .success-message h2 {
+    font-size: 1.3rem;
+  }
+  
+  .success-icon {
+    font-size: 2.5rem;
   }
 }
