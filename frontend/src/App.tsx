@@ -199,6 +199,8 @@ const PresenterApp: React.FC = () => {
 // パスパラメータ対応のイベント管理画面コンポーネント
 const EventManagementRoute: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
+  const [isPresenting, setIsPresenting] = useState<boolean>(false);
+  const [presentationUrl, setPresentationUrl] = useState<string>('');
   
   if (!eventId) {
     return (
@@ -211,15 +213,39 @@ const EventManagementRoute: React.FC = () => {
     );
   }
 
-  // URL直接アクセス時は簡単なプレゼンテーション遷移ハンドラーのみ提供
+  // URL直接アクセス時のプレゼンテーション遷移ハンドラー
   const handlePresentationStart = () => {
     window.location.href = '/';
   };
+
+  // URLを指定してプレゼンテーションを開始
+  const handleStartPresentationWithUrl = (url: string) => {
+    setPresentationUrl(url);
+    setIsPresenting(true);
+  };
+
+  // プレゼンテーション終了
+  const handleExitPresentation = () => {
+    setIsPresenting(false);
+    setPresentationUrl('');
+  };
+
+  // プレゼンテーション画面を表示
+  if (isPresenting && presentationUrl) {
+    return (
+      <PresentationScreen 
+        presentationUrl={presentationUrl}
+        eventId={eventId}
+        onExit={handleExitPresentation}
+      />
+    );
+  }
 
   return (
     <EventManagement 
       eventId={eventId} 
       onStartPresentation={handlePresentationStart}
+      onStartPresentationWithUrl={handleStartPresentationWithUrl}
     />
   );
 };
