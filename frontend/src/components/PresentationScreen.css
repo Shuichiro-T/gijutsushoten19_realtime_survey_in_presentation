@@ -369,3 +369,37 @@
     align-self: flex-end;
   }
 }
+
+/* プレゼンテーションプレースホルダー */
+.presentation-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.placeholder-content {
+  text-align: center;
+  padding: 40px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.placeholder-content h2 {
+  margin: 0 0 20px 0;
+  font-size: 2.5em;
+  font-weight: 300;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.placeholder-content p {
+  margin: 10px 0;
+  font-size: 1.2em;
+  opacity: 0.9;
+  line-height: 1.5;
+}
